@@ -20,11 +20,13 @@ class Handler(webapp2.RequestHandler):
 	def render(self, template, **kw):
 		self.write(self.render_str(template, **kw))
 
-class MainPage(webapp2.RequestHandler):
+class MainPage(Handler):
     def get(self):
     	js = get_file("http://ec2-52-36-61-88.us-west-2.compute.amazonaws.com/api/scoreboard/gpmp")
-        print json.loads(js)
-        self.response.write(js)
+        robots =  json.loads(js).get("robots")
+        for robot in robots:
+        	print robot
+        self.render("scoreboard.html", robots=robots)
 
 
 def get_file(url):
