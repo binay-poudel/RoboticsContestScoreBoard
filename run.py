@@ -19,6 +19,9 @@ last_updated = None
 # Cache expires in 30 seconds
 cache_lifetime = 30
 
+# Page refreshes in 30000 milliseconds
+refresh_duration = 30000
+
 # Main handler class
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):  # write out a string to browser
@@ -46,7 +49,12 @@ class MainPage(Handler):
             pass #if no s or no t, t = 1 and s = date by default
 
         if not is_cache_expired():
-            self.render("scoreboard.html", robots=CACHE, time_diff=get_time_diff(), auto_refresh=auto_refresh)
+            self.render(
+              "scoreboard.html",
+              robots=CACHE,
+              time_diff=get_time_diff(),
+              auto_refresh=auto_refresh,
+              refresh_duration=refresh_duration)
             return
 
         js = get_request(scoreboard_url)
@@ -56,7 +64,12 @@ class MainPage(Handler):
         last_updated = get_time_in_sec(datetime.utcnow())
         CACHE = robots
 
-        self.render("scoreboard.html", robots=CACHE, time_diff=get_time_diff(),auto_refresh=auto_refresh)
+        self.render(
+          "scoreboard.html",
+          robots=CACHE,
+          time_diff=get_time_diff(),
+          auto_refresh=auto_refresh,
+          refresh_duration=refresh_duration)
 
 def is_cache_expired():
     global last_updated
