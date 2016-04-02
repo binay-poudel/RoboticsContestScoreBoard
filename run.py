@@ -34,6 +34,7 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+# Handler for scoreboard page
 class MainPage(Handler):
     def get(self):
         global last_updated, CACHE, scoreboard_url
@@ -46,7 +47,7 @@ class MainPage(Handler):
             if refresh_param in [0,1]:
               auto_refresh = bool(refresh_param)
         except KeyError:
-            pass #if no s or no t, t = 1 and s = date by default
+            pass
 
         if not is_cache_expired():
             self.render(
@@ -57,6 +58,7 @@ class MainPage(Handler):
               refresh_duration=refresh_duration)
             return
 
+        # make a get request from scoreboard api
         js = get_request(scoreboard_url)
         robots =  json.loads(js).get("robots")
 
@@ -71,6 +73,8 @@ class MainPage(Handler):
           auto_refresh=auto_refresh,
           refresh_duration=refresh_duration)
 
+# Checks if cache is expired or not by comparing
+# current time with time cache got last updated
 def is_cache_expired():
     global last_updated
 
@@ -82,6 +86,8 @@ def is_cache_expired():
 
     return False
 
+# Get time difference between now and time cache
+# got last updated
 def get_time_diff():
     global last_updated
 
@@ -91,9 +97,11 @@ def get_time_diff():
     now = get_time_in_sec(datetime.utcnow())
     return now - last_updated
 
+# Coverts time to seconds
 def get_time_in_sec(time):
     return time.second + time.minute * 60 + time.hour * 3600
 
+# Sends a get request to specified url and returns data
 def get_request(url):
     try:
         json_file = urllib.urlopen(url)
@@ -101,6 +109,7 @@ def get_request(url):
     except IOError:
         return ""
 
+# Application
 app = webapp2.WSGIApplication([
     ('/', MainPage)
 ], debug=True)
