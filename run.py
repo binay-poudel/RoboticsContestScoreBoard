@@ -35,8 +35,18 @@ class MainPage(Handler):
     def get(self):
         global last_updated, CACHE, scoreboard_url
 
+        request_params = self.request.GET
+
+        auto_refresh = None
+        try:
+            refresh_param = int(request_params['refresh'])
+            if refresh_param in [0,1]:
+              auto_refresh = bool(refresh_param)
+        except KeyError:
+            pass #if no s or no t, t = 1 and s = date by default
+
         if not is_cache_expired():
-            self.render("scoreboard.html", robots=CACHE, time_diff=get_time_diff())
+            self.render("scoreboard.html", robots=CACHE, time_diff=get_time_diff(), auto_refresh=auto_refresh)
             return
 
         js = get_request(scoreboard_url)
@@ -46,7 +56,7 @@ class MainPage(Handler):
         last_updated = get_time_in_sec(datetime.utcnow())
         CACHE = robots
 
-        self.render("scoreboard.html", robots=CACHE, time_diff=get_time_diff())
+        self.render("scoreboard.html", robots=CACHE, time_diff=get_time_diff(),auto_refresh=auto_refresh)
 
 def is_cache_expired():
     global last_updated
@@ -79,5 +89,5 @@ def get_request(url):
         return ""
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage),
+    ('/', MainPage)
 ], debug=True)
