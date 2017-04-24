@@ -1,8 +1,9 @@
 import webapp2, jinja2
-import urllib
+import urllib2
 import os
 import json
 from datetime import datetime
+import time
 
 # Init template directory
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -10,7 +11,7 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                 autoescape = True)
 
 # Scoreboard url
-scoreboard_url = "http://ec2-52-36-61-88.us-west-2.compute.amazonaws.com/api/scoreboard/gpmp"
+scoreboard_url = "http://li1267-143.members.linode.com:8090/api/scoreboard/gpmp"
 
 # Cache for score data
 CACHE = None
@@ -60,11 +61,16 @@ class MainPage(Handler):
 
         # make a get request from scoreboard api
         js = get_request(scoreboard_url)
-        robots =  json.loads(js).get("robots")
 
-        # update cache
-        last_updated = get_time_in_sec(datetime.utcnow())
-        CACHE = robots
+	try:
+            robots =  json.loads(js).get("robots")
+
+            # update cache
+            last_updated = time.time()
+            CACHE = robots
+        except ValueError:
+            self.write("Scoreboard not available at the moment.")
+            return
 
         self.render(
           "scoreboard.html",
@@ -94,17 +100,14 @@ def get_time_diff():
     if not last_updated:
         return 0
 
-    now = get_time_in_sec(datetime.utcnow())
-    return now - last_updated
-
-# Coverts time to seconds
-def get_time_in_sec(time):
-    return time.second + time.minute * 60 + time.hour * 3600
+    #now = get_time_in_sec(datetime.utcnow())
+    now = time.time()
+    return int(now - last_updated)
 
 # Sends a get request to specified url and returns data
 def get_request(url):
     try:
-        json_file = urllib.urlopen(url)
+        json_file = urllib2.urlopen(url, timeout=30)
         return json_file.read()
     except IOError:
         return ""
