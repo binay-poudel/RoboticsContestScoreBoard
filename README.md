@@ -5,9 +5,10 @@ The scoreboard data is fetched from the main scoring system server. The data is 
 `/path_to_app_engine/dev_appserver.py .`
 
 # To deploy to app engine
-`/path_to_app_engine/appcfg.py --oauth2_credential_file=~/.appcfg_oauth2_tokens_personal update  .`
-
-The app is hosted on Google App Engine (GAE) account: `robotics.scoring.test@gmail.com` with a project ID: `contestscoreboard.` The option `--oauth2_credential_file=~/.appcfg_oauth2_tokens_personal` is needed only if you have different GAE accounts you are working with locally and would like to specify which one.
+- Authenticate the Google App Engine API (so that resources can be assigned) using auth json (which can be obtained from GAE console) with command `gcloud auth activate-service-account --key-file ./<auth json>`
+- Authenticate Google Account by loginning in using `gcloud auth login`
+- Set environmental variable SERVER\_IP that points to IP address of the scoring server
+- Deploy using `gcloud app deploy`
 
 # Requirements
 - Python 2.7.6

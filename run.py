@@ -11,7 +11,7 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                 autoescape = True)
 
 # Scoreboard url
-scoreboard_url = "http://li1267-143.members.linode.com:8090/api/scoreboard/gpmp"
+scoreboard_url = "http://{0}:8090/api/scoreboard/gpmp".format(os.environ["SERVER_IP"])
 
 # Cache for score data
 CACHE = None
